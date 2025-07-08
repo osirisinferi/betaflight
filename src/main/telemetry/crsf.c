@@ -261,6 +261,41 @@ MAYBE_UNUSED static void crsfFrameGps(sbuf_t *dst)
 }
 
 /*
+0x02 Extended GPS
+Items flagged as `i` are not implemented because, well, lazy
+PDOP is not specified in the CRSF specification, but I added it because, well, why not.
+Originally, the CRSF specs mention *DOP as value *10, but BF specifies them as value * 100.
+Payload dd(items flagged as `i` are not implemented because, well, lazy):
+uint8_t     Fix type ( Current GPS fix quality ; own implementation: 0 = no fix, 1 = fix)
+int16_t (i) N speed ( Northward (north = positive) Speed [cm/sec] )
+int16_t (i) E speed ( Eastward (east = positive) Speed [cm/sec] )
+int16_t (i) V speed ( Vertical (up = positive) Speed [cm/sec] )
+int16_t (i) H speed acc (Horizontal Speed accuracy cm/sec )
+int16_t (i) Track acc ( Heading accuracy in degrees scaled with 1e-1 degrees times 10) )
+int16_t (i) Alt ellipsoid ( Meters Height above GPS Ellipsoid (not MSL) )
+int16_t (i) H acc ( horizontal accuracy in cm )
+int16_t (i) V acc ( vertical accuracy in cm )
+uint8_t (i) Reserved
+uint8_t     HDOP ( Horizontal dilution of precision, dimensionless, value * 100)
+uint8_t     VDOP ( vertical dilution of precision, dimensionless, value * 100)
+uint8_t     PDOP ( vertical dilution of precision, dimensionless, value * 100)
+*/
+MAYBE_UNUSED static void crsfFrameGpsExtended(sbuf_t *dst)
+{
+    // use sbufWrite since CRC does not include frame length
+    sbufWriteU8(dst, CRSF_FRAME_GPS_EXTENDED_PAYLOAD_SIZE + CRSF_FRAME_LENGTH_TYPE_CRC);
+    sbufWriteU8(dst, CRSF_FRAMETYPE_GPS_EXTENDED);
+    if (STATE(GPS_FIX)) {
+        sbufWriteU8(dst, 1);
+    } else {
+        sbufWriteU8(dst, 0);
+    }
+    sbufWriteU32BigEndian(dst, gpsSol.dop.hdop);
+    sbufWriteU32BigEndian(dst, gpsSol.dop.vdop);
+    sbufWriteU32BigEndian(dst, gpsSol.dop.pdop);
+}
+
+/*
 0x07 Vario sensor
 Payload:
 int16_t     Vertical speed ( cm/s )
@@ -703,6 +738,7 @@ typedef enum {
     CRSF_FRAME_BATTERY_SENSOR_INDEX,
     CRSF_FRAME_FLIGHT_MODE_INDEX,
     CRSF_FRAME_GPS_INDEX,
+    CRSF_FRAME_GPS_EXTENDED_INDEX,
     CRSF_FRAME_VARIO_SENSOR_INDEX,
     CRSF_FRAME_HEARTBEAT_INDEX,
     CRSF_SCHEDULE_COUNT_MAX
@@ -781,6 +817,12 @@ static void processCrsf(void)
         crsfFrameGps(dst);
         crsfFinalize(dst);
     }
+    if (currentSchedule & BIT(CRSF_FRAME_GPS_EXTENDED_INDEX)) {
+        crsfInitializeFrame(dst);
+        crsfFrameGpsExtended(dst);
+        crsfFinalize(dst);
+    }
+
 #endif
 #ifdef USE_VARIO
     if (currentSchedule & BIT(CRSF_FRAME_VARIO_SENSOR_INDEX)) {
@@ -859,6 +901,7 @@ void initCrsfTelemetry(void)
     if (featureIsEnabled(FEATURE_GPS)
        && telemetryIsSensorEnabled(SENSOR_ALTITUDE | SENSOR_LAT_LONG | SENSOR_GROUND_SPEED | SENSOR_HEADING)) {
         crsfSchedule[index++] = BIT(CRSF_FRAME_GPS_INDEX);
+        crsfSchedule[index++] = BIT(CRSF_FRAME_GPS_EXTENDED_INDEX);
     }
 #endif
 #ifdef USE_VARIO
@@ -1064,6 +1107,10 @@ int getCrsfFrame(uint8_t *frame, crsfFrameType_e frameType)
     case CRSF_FRAMETYPE_GPS:
         crsfFrameGps(sbuf);
         break;
+    case CRSF_FRAMETYPE_GPS_EXTENDED:
+        crsfFrameGpsExtended(sbuf);
+        break;
+
 #endif
 #if defined(USE_VARIO)
     case CRSF_FRAMETYPE_VARIO_SENSOR:
