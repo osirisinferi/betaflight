@@ -30,6 +30,8 @@
 
 #include "sound_beeper.h"
 
+#include "cli/cli_debug_print.h"
+
 #ifdef USE_BEEPER
 static IO_t beeperIO = DEFIO_IO(NONE);
 static bool beeperInverted = false;
@@ -41,6 +43,7 @@ void systemBeep(bool onoff)
 #ifdef USE_BEEPER
     if (beeperFrequency == 0) {
         IOWrite(beeperIO, beeperInverted ? onoff : !onoff);
+	cliDebugPrintLinef("Beeper pin set to %d", onoff);
     }
 #ifdef USE_PWM_OUTPUT
     else {

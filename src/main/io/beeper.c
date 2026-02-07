@@ -64,6 +64,8 @@
 
 #include "beeper.h"
 
+#include "cli/cli_debug_print.h"
+
 #ifdef BEEPER_INVERTED
 #define IS_OPEN_DRAIN   false
 #define IS_INVERTED     true
@@ -127,7 +129,8 @@ static const uint8_t beep_armedBeep[] = {
 };
 // disarming beeps
 static const uint8_t beep_disarmBeep[] = {
-    15, 5, 15, 5, BEEPER_COMMAND_STOP
+    //15, 5, 15, 5, BEEPER_COMMAND_STOP
+    75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, BEEPER_COMMAND_STOP
 };
 // beeps while stick held in disarm position (after pause)
 static const uint8_t beep_disarmRepeatBeep[] = {
@@ -277,6 +280,7 @@ void beeper(beeperMode_e mode)
     currentBeeperEntry = candidate;
     beeperPos = 0;
     beeperNextToggleTime = 0;
+    cliDebugPrintLinef("Beeper turned on with mode %d", mode);
 }
 
 void beeperSilence(void)
@@ -290,6 +294,7 @@ void beeperSilence(void)
     currentBeeperEntry = NULL;
     beeperPos = 0;
     beeperNextToggleTime = 0;
+    cliDebugPrintLinef("Beeper silenced");
 }
 
 // helper function, add count beeps starting at pos to beep_multiBeeps
