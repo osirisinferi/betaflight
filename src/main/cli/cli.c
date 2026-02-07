@@ -5865,6 +5865,43 @@ static void cliStatus(const char *cmdName, char *cmdline)
 
     cliPrintf("MCU: %s CLK=%dMHz", getMcuTypeName(), (SystemCoreClock / 1000000));
 
+#ifdef CUSTOM_CLOCK_SOURCE_STATUS_INFO
+    uint32_t sysclk_source = RCC->CFGR & RCC_CFGR_SWS;
+
+    switch (sysclk_source) {
+        case RCC_CFGR_SWS_HSI:
+            cliPrintf("Clock Source: HSI");
+            break;
+        case RCC_CFGR_SWS_CSI:
+            cliPrintf("Clock Source: CSI");
+            break;
+        case RCC_CFGR_SWS_HSE:
+            cliPrintf("Clock Source: HSE");
+            break;
+        case RCC_CFGR_SWS_PLL1: {
+            uint32_t pllsrc = RCC->PLLCKSELR & RCC_PLLCKSELR_PLLSRC;
+            switch (pllsrc) {
+                case RCC_PLLCKSELR_PLLSRC_HSI:
+                    cliPrintf("Clock Source: PLL1 (HSI)");
+                    break;
+                case RCC_PLLCKSELR_PLLSRC_CSI:
+                    cliPrintf("Clock Source: PLL1 (CSI)");
+                    break;
+                case RCC_PLLCKSELR_PLLSRC_HSE:
+                    cliPrintf("Clock Source: PLL1 (HSE)");
+                    break;
+                default:
+                    cliPrintf("Clock Source: PLL1 (Unknown)");
+                    break;
+            }
+            break;
+        }
+        default:
+            cliPrintf("Clock Source: Unknown");
+           break;
+    }
+
+#endif
 #if PLATFORM_TRAIT_CONFIG_HSE
     // Only F4 and G4 is capable of switching between HSE/HSI (for now)
     int sysclkSource = SystemSYSCLKSource();
