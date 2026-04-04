@@ -113,6 +113,10 @@ void voltageMeterReset(voltageMeter_t *meter)
 #define DEFAULT_VOLTAGE_METER_MULTIPLIER 1
 #endif
 
+#ifndef DEFAULT_VOLTAGE_METER_OFFSET
+#define DEFAULT_VOLTAGE_METER_OFFSET 0
+#endif
+
 typedef struct voltageMeterADCState_s {
     uint16_t voltageDisplayFiltered;         // battery voltage in 0.01V steps (filtered)
     uint16_t voltageUnfiltered;       // battery voltage in 0.01V steps (unfiltered)
@@ -141,6 +145,7 @@ void pgResetFn_voltageSensorADCConfig(voltageSensorADCConfig_t *instance)
             .vbatscale = DEFAULT_VOLTAGE_METER_SCALE,
             .vbatresdivval = DEFAULT_VOLTAGE_METER_DIVIDER,
             .vbatresdivmultiplier = DEFAULT_VOLTAGE_METER_MULTIPLIER,
+	    .vbatoffset = DEFAULT_VOLTAGE_METER_OFFSET,
         );
     }
 }
@@ -162,7 +167,7 @@ STATIC_UNIT_TESTED uint16_t voltageAdcToVoltage(const uint16_t src, const voltag
 {
     // calculate battery voltage based on ADC reading
     // result is Vbatt in 0.01V steps. 3.3V = ADC Vref, 0xFFF = 12bit adc, 110 = 10:1 voltage divider (10k:1k) * 100 for 0.01V
-    return ((((uint32_t)src * config->vbatscale * getVrefMv() / 10 + (0xFFF * 5)) / (0xFFF * config->vbatresdivval)) / config->vbatresdivmultiplier);
+    return (((((uint32_t)src * config->vbatscale * getVrefMv() / 10 + (0xFFF * 5)) / (0xFFF * config->vbatresdivval)) / config->vbatresdivmultiplier) + config->vbatoffset);
 }
 
 void voltageMeterADCRefresh(void)

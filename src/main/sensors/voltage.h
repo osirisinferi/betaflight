@@ -81,6 +81,9 @@ typedef enum {
 #define VBAT_MULTIPLIER_MIN 1
 #define VBAT_MULTIPLIER_MAX 255
 
+#define VBAT_OFFSET_MIN 0
+#define VBAT_OFFSET_MAX 255
+
 #ifndef MAX_VOLTAGE_SENSOR_ADC
 #define MAX_VOLTAGE_SENSOR_ADC 1 // VBAT - some boards have external, 12V, 9V and 5V meters.
 #endif
@@ -98,6 +101,7 @@ typedef struct voltageSensorADCConfig_s {
     uint8_t vbatscale;                      // adjust this to match battery voltage to reported value
     uint8_t vbatresdivval;                  // resistor divider R2 (default NAZE 10(K))
     uint8_t vbatresdivmultiplier;           // multiplier for scale (e.g. 2.5:1 ratio with multiplier of 4 can use '100' instead of '25' in ratio) to get better precision
+    uint8_t vbatoffset;                     // sometimes the VBAT ADC is situated behind a reverse polarity protection diode, causing a certain voltage offset, which we can correct for. Value in centivolt (i.e., measured offset of 0.45 V would be a vbatoffset of 45.
 } voltageSensorADCConfig_t;
 
 PG_DECLARE_ARRAY(voltageSensorADCConfig_t, MAX_VOLTAGE_SENSOR_ADC, voltageSensorADCConfig);
