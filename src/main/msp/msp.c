@@ -856,7 +856,7 @@ static bool mspCommonProcessOutCommand(int16_t cmdMSP, sbuf_t *dst, mspPostProce
         STATIC_ASSERT(VOLTAGE_SENSOR_ADC_VBAT == 0, VOLTAGE_SENSOR_ADC_VBAT_incorrect); // VOLTAGE_SENSOR_ADC_VBAT should be the first index
         sbufWriteU8(dst, MAX_VOLTAGE_SENSOR_ADC); // voltage meters in payload
         for (int i = VOLTAGE_SENSOR_ADC_VBAT; i < MAX_VOLTAGE_SENSOR_ADC; i++) {
-            const uint8_t adcSensorSubframeLength = 1 + 1 + 1 + 1 + 1; // length of id, type, vbatscale, vbatresdivval, vbatresdivmultipler, in bytes
+            const uint8_t adcSensorSubframeLength = 1 + 1 + 1 + 1 + 1 + 1; // length of id, type, vbatscale, vbatresdivval, vbatresdivmultipler, vbatoffset, in bytes
             sbufWriteU8(dst, adcSensorSubframeLength); // ADC sensor sub-frame length
 
             sbufWriteU8(dst, voltageMeterADCtoIDMap[i]); // id of the sensor
@@ -865,6 +865,7 @@ static bool mspCommonProcessOutCommand(int16_t cmdMSP, sbuf_t *dst, mspPostProce
             sbufWriteU8(dst, voltageSensorADCConfig(i)->vbatscale);
             sbufWriteU8(dst, voltageSensorADCConfig(i)->vbatresdivval);
             sbufWriteU8(dst, voltageSensorADCConfig(i)->vbatresdivmultiplier);
+            sbufWriteU8(dst, voltageSensorADCConfig(i)->vbatoffset);
         }
         // if we had any other voltage sensors, this is where we would output any needed configuration
         break;
@@ -4398,8 +4399,10 @@ static mspResult_e mspCommonProcessInCommand(mspDescriptor_t srcDesc, int16_t cm
             voltageSensorADCConfigMutable(voltageSensorADCIndex)->vbatscale = sbufReadU8(src);
             voltageSensorADCConfigMutable(voltageSensorADCIndex)->vbatresdivval = sbufReadU8(src);
             voltageSensorADCConfigMutable(voltageSensorADCIndex)->vbatresdivmultiplier = sbufReadU8(src);
+            voltageSensorADCConfigMutable(voltageSensorADCIndex)->vbatoffset = sbufReadU8(src);
         } else {
             // if we had any other types of voltage sensor to configure, this is where we'd do it.
+            sbufReadU8(src);
             sbufReadU8(src);
             sbufReadU8(src);
             sbufReadU8(src);
