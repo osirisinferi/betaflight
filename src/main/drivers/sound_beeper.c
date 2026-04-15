@@ -43,7 +43,9 @@ void systemBeep(bool onoff)
 #ifdef USE_BEEPER
     if (beeperFrequency == 0) {
         IOWrite(beeperIO, beeperInverted ? onoff : !onoff);
+#ifdef USE_BEEPER_DEBUG
 	cliDebugPrintLinef("Beeper pin set to %d", onoff);
+#endif
     }
 #ifdef USE_PWM_OUTPUT
     else {

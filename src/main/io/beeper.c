@@ -280,7 +280,9 @@ void beeper(beeperMode_e mode)
     currentBeeperEntry = candidate;
     beeperPos = 0;
     beeperNextToggleTime = 0;
+#ifdef USE_BEEPER_DEBUG
     cliDebugPrintLinef("Beeper turned on with mode %d", mode);
+#endif
 }
 
 void beeperSilence(void)
@@ -294,7 +296,9 @@ void beeperSilence(void)
     currentBeeperEntry = NULL;
     beeperPos = 0;
     beeperNextToggleTime = 0;
+#ifdef USE_BEEPER_DEBUG
     cliDebugPrintLinef("Beeper silenced");
+#endif
 }
 
 // helper function, add count beeps starting at pos to beep_multiBeeps
