@@ -100,6 +100,8 @@
 // QMC5883P Configuration Values
 // Mode settings for CONF1 register
 #define QMC5883P_MODE_STANDBY           0x00
+#define QMC5883P_MODE_NORMAL            0x01
+#define QMC5883P_MODE_SINGLE            0x02
 #define QMC5883P_MODE_CONTINUOUS        0x03
 
 // Output Data Rate (ODR) settings for CONF1 register
@@ -108,21 +110,23 @@
 #define QMC5883P_ODR_100HZ             (0x02 << 2)
 #define QMC5883P_ODR_200HZ             (0x03 << 2)
 
-// Range settings for CONF1 register
-#define QMC5883P_RNG_2G                (0x00 << 4)
-#define QMC5883P_RNG_8G                (0x01 << 4)
+// Oversampling Ratio (OSR1) settings for CONF1 register
+#define QMC5883P_OSR1_8                (0x00 << 4)
+#define QMC5883P_OSR1_4                (0x01 << 4)
+#define QMC5883P_OSR1_2                (0x02 << 4)
+#define QMC5883P_OSR1_1                (0x03 << 4)
 
-// Oversampling Ratio 1 (OSR1) settings for CONF1 register
-#define QMC5883P_OSR1_8                (0x00 << 6)
-#define QMC5883P_OSR1_4                (0x01 << 6)
-#define QMC5883P_OSR1_2                (0x02 << 6)
-#define QMC5883P_OSR1_1                (0x03 << 6)
+// Downsampling Ratio (OSR2) settings for CONF1 register
+#define QMC5883P_OSR2_1                (0x00 << 6)
+#define QMC5883P_OSR2_2                (0x01 << 6)
+#define QMC5883P_OSR2_4                (0x02 << 6)
+#define QMC5883P_OSR2_8                (0x03 << 6)
 
-// Oversampling Ratio 2 (OSR2) settings for CONF2 register
-#define QMC5883P_OSR2_8                0x08
-#define QMC5883P_OSR2_4                0x04
-#define QMC5883P_OSR2_2                0x02
-#define QMC5883P_OSR2_1                0x01
+// Range settings for CONF2 register
+#define QMC5883P_RNG_30G               (0x00 << 2)
+#define QMC5883P_RNG_12G               (0x01 << 2)
+#define QMC5883P_RNG_8G                (0x02 << 2)
+#define QMC5883P_RNG_2G                (0x03 << 2)
 
 // Status register bits
 #define QMC5883P_STATUS_DATA_READY     0x01
@@ -133,8 +137,8 @@
 #define QMC5883P_XYZ_SIGN_CONFIG       0x06
 
 // Default configuration for Betaflight
-#define QMC5883P_DEFAULT_CONF1         (QMC5883P_MODE_CONTINUOUS | QMC5883P_ODR_100HZ | QMC5883P_RNG_8G | QMC5883P_OSR1_8)
-#define QMC5883P_DEFAULT_CONF2         QMC5883P_OSR2_8
+#define QMC5883P_DEFAULT_CONF1         (QMC5883P_MODE_CONTINUOUS | QMC5883P_ODR_100HZ | QMC5883P_OSR1_8 | QMC5883P_OSR2_8)
+#define QMC5883P_DEFAULT_CONF2         QMC5883P_RNG_8G
 
 // Unified descriptor for QMC5883 variants
 typedef enum {
